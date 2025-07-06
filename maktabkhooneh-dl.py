@@ -40,9 +40,8 @@ def main():
         logging.info(f'Course Title: {course_title[0:-1]}')
     else:
         logging.warning(f'Course title not found')
-
-    lecture_page_link_elements = bs.select('.chapter__unit')
-    lecture_page_urls = [(element.get('title'), element.get('href')) for element in lecture_page_link_elements]
+    lecture_page_link_elements = bs.select('div.flex.group')
+    lecture_page_urls = [(element.select("span")[0].get('title'), element.get('href')) for element in lecture_page_link_elements]
     number_of_lectures = len(lecture_page_urls)
     logging.info(f"Found {number_of_lectures} lectures.")
 
@@ -66,9 +65,15 @@ def main():
     # open a file for storing download links if necessary 
     if args.store_urls:
         urls_file = open(args.store_urls, 'w')
-
-    # Download lectures
-    for i in download_range:
+    file = open("link_title.txt","r")
+    a = file.read()
+    file.close()
+    try:
+        lecture_page_urls = [i.split(":------:") for i in a.split("\n")]
+    except Exception as e:
+        print(e)
+        raise e
+    for i in range(0,len(lecture_page_urls)):
         title, url = lecture_page_urls[i]
         if not url or len(url) == 0:
             logging.info('there is no download in this page. skipping...')
